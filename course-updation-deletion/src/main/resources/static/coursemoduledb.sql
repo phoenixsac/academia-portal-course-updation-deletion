@@ -5,50 +5,65 @@ USE coursemoduledb;
 DROP TABLE IF EXISTS employee,
     departments,
     courses,
+    users,
     course_prerequisite;
 ###ddls###
+
+##USERS
+create table users(
+                      usr_email varchar(255) PRIMARY KEY,
+                      usr_name varchar(255) not null,
+                      usr_password varchar(255) not null,
+                      usr_type varchar(255) not null
+);
+
 
 ##DEPARTMENTS
 create table departments(
                             department_id INT AUTO_INCREMENT PRIMARY KEY,
-                            name varchar(30) not null,
+                            name varchar(255) not null,
                             capacity int not null
 );
+
 
 ##EMPLOYEE
 create table employee(
                          employee_id INT AUTO_INCREMENT PRIMARY KEY,
-                         first_name varchar(30) not null,
-                         last_name varchar(30),
-                         email varchar(30) not null unique,
-                         title varchar(30),
-                         photograph_path varchar(30),
+                         first_name varchar(255) not null,
+                         last_name varchar(255),
+                         email varchar(255) not null unique,
+                         title varchar(255),
+                         photograph_path varchar(255),
                          dept_id int
 );
-
 
 ##COURSES
 create table courses(
                         course_id int AUTO_INCREMENT PRIMARY KEY,
                         course_code int not null unique,
-                        name varchar(50) not null,
-                        description varchar(50),
+                        name varchar(255) not null,
+                        description varchar(255),
                         year int not null,
-                        term varchar(20) not null,
+                        term varchar(255) not null,
                         credits int not null,
                         capacity int not null,
                         faculty_id int
 );
+
 
 ##COURSE_PREREQUISITES
 create table course_prerequisite(
                                     course_prereq_id INT AUTO_INCREMENT PRIMARY KEY,
                                     course_id int,
                                     prereq_course_id int,
-                                    prereq_description varchar(50)
+                                    prereq_description varchar(255)
 );
 
 ###ALTER FKS
+
+alter table employee add constraint fk_usr_emp_relation FOREIGN KEY (email) REFERENCES users(usr_email);
+
+
 alter table employee add constraint fk_department FOREIGN KEY (dept_id) REFERENCES departments(department_id);
 
 alter table courses add constraint fk_faculty FOREIGN KEY (faculty_id) REFERENCES employee(employee_id);
@@ -57,7 +72,19 @@ alter table course_prerequisite add constraint fk_course_id FOREIGN KEY (course_
 
 alter table course_prerequisite add constraint fk_prereq_id FOREIGN KEY (prereq_course_id) REFERENCES courses(course_id);
 
+
 ###DATA
+
+## Insert sample data into the 'users' table
+INSERT INTO users(usr_name, usr_email, usr_password, usr_type) VALUES
+    ('John Doe', 'john.doe@example.com', 'password123', 'admin'),
+    ('Jane Smith', 'jane.smith@example.com', 'pass456', 'users'),
+    ('Bob Johnson', 'bob.johnson@example.com', 'secure789', 'users'),
+    ('Alice Williams', 'alice.williams@example.com', '12345pass', 'admin'),
+    ('Charlie Brown', 'charlie.brown@example.com', 'securepass', 'users'),
+	('Sachin Nair', 'sachin.nair@example.com', 'sachinpass', 'admin'),
+	('Michal Das', 'michal.das@example.com', 'michalpass', 'users');
+
 
 ### Inserting data into the 'departments' table
 insert into departments (department_id, name, capacity) values
@@ -90,4 +117,9 @@ INSERT INTO course_prerequisite (course_prereq_id, course_id, prereq_course_id, 
     (3, 4, 1, 'Introduction to Computer Science'),
     (4, 5, 2, 'Linear Algebra'),
     (5, 3, 4, 'Data Structures');
+
+
+
+
+
 

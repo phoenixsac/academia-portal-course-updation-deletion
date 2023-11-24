@@ -1,11 +1,14 @@
 package com.miniproject.courseupdationdeletion.Service;
 
+import com.miniproject.courseupdationdeletion.Exception.CourseNotFoundException;
 import com.miniproject.courseupdationdeletion.RequestBody.CourseReqBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.miniproject.courseupdationdeletion.ResponseBody.CourseResponse;
 import com.miniproject.courseupdationdeletion.Entities.Courses;
 import com.miniproject.courseupdationdeletion.Repository.CoursesRepository;
+
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import java.util.List;
@@ -28,11 +31,14 @@ public class CourseServiceImpl {
     }
 
     public CourseResponse getCourseById(int courseId) {
-        Courses course=new Courses();
-        course=courseRepository.findCourseById(courseId);
-        return mapToResponseModel(course);
+        Courses course = new Courses();
+       // boolean courseExists=courseRepository.existsById(courseId);
+        course = courseRepository.findCourseById(courseId);
+        if(course==null)
+            throw new CourseNotFoundException("Course not found in database");
+        else
+            return mapToResponseModel(course);
     }
-
 
 
     public Courses createCourse(CourseReqBody courseReqBody) {
@@ -64,6 +70,20 @@ public class CourseServiceImpl {
         course.setFacultyId(courseReqBody.getCourseFacultyId());
 
         return courseRepository.save(course);
+    }
+
+    public boolean deleteCourse(int courseId) {
+
+        Optional<Courses> optionalCourse = Optional.ofNullable(courseRepository.findCourseByIdOptionalWrapper(courseId));
+
+        if (optionalCourse.isPresent()) {
+            Courses courseToDelete = optionalCourse.get();
+            courseRepository.delete(courseToDelete);
+            return true;
+        } else {
+            // Course not found
+            return false;
+        }
     }
 
 

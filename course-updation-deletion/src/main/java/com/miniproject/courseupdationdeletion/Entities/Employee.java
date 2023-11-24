@@ -24,6 +24,11 @@ public class Employee {
     @Column(name="title")
     private String title;
 
+
+
+    @Column(name="type")
+    private String type;
+
     @Column(name="photograph_path")
     private String photographPath;
 
@@ -39,6 +44,14 @@ public class Employee {
     private Department department;
 
 
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
     public int getId() {
         return id;
     }

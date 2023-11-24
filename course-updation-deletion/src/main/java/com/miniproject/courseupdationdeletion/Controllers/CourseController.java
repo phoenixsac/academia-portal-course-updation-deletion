@@ -1,6 +1,7 @@
 package com.miniproject.courseupdationdeletion.Controllers;
 
 import com.miniproject.courseupdationdeletion.Entities.Courses;
+import com.miniproject.courseupdationdeletion.Exception.CourseNotFoundException;
 import com.miniproject.courseupdationdeletion.RequestBody.CourseReqBody;
 import com.miniproject.courseupdationdeletion.ResponseBody.CourseResponse;
 import com.miniproject.courseupdationdeletion.Service.CourseServiceImpl;
@@ -51,9 +52,11 @@ public class CourseController {
         try {
             CourseResponse courseResp = courseService.getCourseById(courseId);
             return new ResponseEntity<>(courseResp, HttpStatus.OK);
-        } catch (Exception e) {
-            //Handle the exception and return an appropriate response
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        catch (CourseNotFoundException e) {
+            throw e;
+        }catch (Exception e) {
+         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -74,7 +77,7 @@ public class CourseController {
     }
 
     @PutMapping("/update_course/{courseId}")
-    public ResponseEntity<Courses> createPost(@PathVariable int courseId, @RequestBody CourseReqBody courseReqBody) {
+    public ResponseEntity<Courses> updatePost(@PathVariable int courseId, @RequestBody CourseReqBody courseReqBody) {
         logger.info("Modify course API hit");
         try {
             Courses updatedCourse = courseService.modifyCourse(courseId,courseReqBody);
@@ -84,6 +87,31 @@ public class CourseController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @DeleteMapping("/delete_course/{courseId}")
+    public ResponseEntity<String> deletePost(@PathVariable int courseId) {
+        logger.info("Delete course API hit");
+        try {
+            boolean deletionStatus = courseService.deleteCourse(courseId);
+            if(deletionStatus)
+                return new ResponseEntity<>("Course deleted successfully", HttpStatus.OK);
+            else
+                return new ResponseEntity<>("Course not found", HttpStatus.NOT_FOUND);
+        }
+        catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+
+    @ExceptionHandler(CourseNotFoundException.class)
+    public ResponseEntity<String> handleCourseNotFoundException(CourseNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+
+
 
     @GetMapping("/hello")
     public String hello(@RequestParam(value = "name", defaultValue = "World") String name) {
